@@ -4,16 +4,16 @@ services:
     env: node
     plan: starter
     buildCommand: npm run build:all
-    startCommand: npm start
+    startCommand: node index.js
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 10000
       - key: SOLANA_NETWORK
-        value: devnet
+        value: mainnet-beta
       - key: SOLANA_RPC_URL
-        value: https://api.devnet.solana.com
+        value: https://magical-boldest-patina.solana-mainnet.quiknode.pro/a94255dcbb27e52b1d4cca35d10e899b82b6bdba/
       - key: CORS_ORIGIN
         value: "*"
     healthCheckPath: /health 

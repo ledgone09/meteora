@@ -2,7 +2,7 @@
   "name": "solana-meteora-token-launcher",
   "version": "1.0.0",
   "description": "Solana Token Launch Platform with Meteora DLMM Integration - Create tokens + liquidity in under 60 seconds",
-  "main": "server/index.js",
+  "main": "index.js",
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "server": "cd server && npm run dev",
@@ -12,7 +12,9 @@
     "build:server": "cd server && npm install --production",
     "build:all": "npm run install-all && npm run build:client",
     "install-all": "npm install && cd server && npm install && cd ../client && npm install",
-    "start": "cd server && npm start",
+    "start": "node index.js",
+    "start:server": "cd server && npm start",
+    "debug": "node debug-structure.js",
     "setup": "npm run install-all && npm run setup-db",
     "setup-db": "cd server && npm run setup-db"
   },

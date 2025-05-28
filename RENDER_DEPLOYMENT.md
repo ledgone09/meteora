@@ -27,7 +27,7 @@ Deploy your Meteora Token Launcher as a single web service on Render.com.
 
 **Build & Deploy:**
 - **Build Command**: `npm run build:all`
-- **Start Command**: `npm start`
+- **Start Command**: `node index.js`
 - **Node Version**: `18` (or latest LTS)
 
 ### 3. **Environment Variables**
@@ -38,8 +38,8 @@ Add these environment variables in Render:
 ```
 NODE_ENV=production
 PORT=10000
-SOLANA_NETWORK=devnet
-SOLANA_RPC_URL=https://api.devnet.solana.com
+SOLANA_NETWORK=mainnet-beta
+SOLANA_RPC_URL=https://magical-boldest-patina.solana-mainnet.quiknode.pro/a94255dcbb27e52b1d4cca35d10e899b82b6bdba/
 CORS_ORIGIN=*
 ```
 
@@ -82,6 +82,12 @@ Your platform now uses the new pricing structure:
 - All routes served from same domain
 - No CORS issues in production
 
+### **QuikNode RPC Benefits**
+- **Faster Response Times**: Premium RPC endpoint
+- **Higher Rate Limits**: Better performance under load
+- **Mainnet Ready**: Production-grade Solana access
+- **Reliable Uptime**: Enterprise-level infrastructure
+
 ### **File Structure in Production**
 ```
 /
@@ -100,12 +106,12 @@ Your platform now uses the new pricing structure:
 
 ### **App Won't Start**
 - Verify `PORT` environment variable is set
-- Check start command: `npm start`
+- Check start command: `node index.js`
 - Review application logs
 
 ### **API Errors**
 - Ensure environment variables are set
-- Check Solana RPC URL is accessible
+- Check QuikNode RPC URL is accessible
 - Verify CORS settings
 
 ### **Database Issues**
@@ -127,13 +133,13 @@ Your platform now uses the new pricing structure:
 
 ### **Environment-Specific Settings**
 ```bash
-# Development
+# Production (Recommended)
+SOLANA_NETWORK=mainnet-beta
+SOLANA_RPC_URL=https://magical-boldest-patina.solana-mainnet.quiknode.pro/a94255dcbb27e52b1d4cca35d10e899b82b6bdba/
+
+# Development/Testing
 SOLANA_NETWORK=devnet
 SOLANA_RPC_URL=https://api.devnet.solana.com
-
-# Production
-SOLANA_NETWORK=mainnet-beta
-SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
 ```
 
 ## 📊 Monitoring

@@ -5,8 +5,8 @@ module.exports = {
   
   // Solana Configuration
   solana: {
-    rpcUrl: process.env.SOLANA_RPC_URL || 'https://api.devnet.solana.com',
-    network: process.env.SOLANA_NETWORK || 'devnet',
+    rpcUrl: process.env.SOLANA_RPC_URL || 'https://magical-boldest-patina.solana-mainnet.quiknode.pro/a94255dcbb27e52b1d4cca35d10e899b82b6bdba/',
+    network: process.env.SOLANA_NETWORK || 'mainnet-beta',
     commitment: 'confirmed'
   },
   
