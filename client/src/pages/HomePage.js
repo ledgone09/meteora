@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
-import { useWallet } from '@solana/wallet-adapter-react';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Coins, Zap, Shield, TrendingUp } from 'lucide-react';
+import { Coins, Zap, Shield, TrendingUp, Wallet } from 'lucide-react';
 
 import TokenCreationForm from '../components/TokenCreationForm';
 import RecentLaunches from '../components/RecentLaunches';
 import FeatureCard from '../components/FeatureCard';
 
 const HomePage = () => {
-  const { connected } = useWallet();
+  // Placeholder for wallet connection - will be replaced with real wallet integration
+  const [connected, setConnected] = useState(false);
   const navigate = useNavigate();
 
   const features = [
@@ -35,6 +34,12 @@ const HomePage = () => {
       description: "No initial SOL/USDC capital required for liquidity"
     }
   ];
+
+  const handleWalletConnect = () => {
+    // Placeholder function - will be replaced with real wallet connection
+    setConnected(!connected);
+    toast.success(connected ? 'Wallet disconnected' : 'Wallet connected');
+  };
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -97,7 +102,9 @@ const HomePage = () => {
                 <p className="text-white/60 mb-6">
                   Connect your Solana wallet to start creating tokens
                 </p>
-                <WalletMultiButton className="btn-gradient" />
+                <button className="btn-gradient" onClick={handleWalletConnect}>
+                  Connect Wallet
+                </button>
               </div>
             )}
           </div>

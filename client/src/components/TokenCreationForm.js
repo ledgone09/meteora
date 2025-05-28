@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react';
-import { useWallet } from '@solana/wallet-adapter-react';
 import { useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import toast from 'react-hot-toast';
@@ -10,7 +9,8 @@ import axios from 'axios';
 const API_URL = process.env.REACT_APP_API_URL || '/api';
 
 const TokenCreationForm = () => {
-  const { publicKey } = useWallet();
+  // Placeholder for wallet - will be replaced with real wallet integration
+  const publicKey = { toString: () => 'MockWalletAddress123456789012345678901234567890' };
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({

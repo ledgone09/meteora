@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { Coins, Home, Clock, TrendingUp } from 'lucide-react';
+import { Coins, Home, Clock, Wallet } from 'lucide-react';
 
 const Header = () => {
   const location = useLocation();
@@ -63,8 +62,11 @@ const Header = () => {
               </span>
             </div>
 
-            {/* Wallet Button */}
-            <WalletMultiButton className="!bg-gradient-to-r !from-purple-600 !to-blue-600 hover:!from-purple-700 hover:!to-blue-700" />
+            {/* Wallet Button Placeholder */}
+            <button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 font-medium">
+              <Wallet className="w-4 h-4" />
+              <span className="hidden sm:inline">Connect Wallet</span>
+            </button>
           </div>
         </div>
 

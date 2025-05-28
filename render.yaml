@@ -6,7 +6,7 @@ services:
     repo: https://github.com/ledgone09/meteora.git
     branch: main
     rootDir: .
-    buildCommand: npm install && cd client && npm install && npm run build && cd .. && echo "Build complete"
+    buildCommand: npm install && cd client && npm install && GENERATE_SOURCEMAP=false npm run build && cd .. && echo "Build complete"
     startCommand: npm start
     healthCheckPath: /health
     envVars:
@@ -22,3 +22,7 @@ services:
         value: "0.02"
       - key: PREMIUM_LAUNCH_PRICE  
         value: "0.1"
+      - key: GENERATE_SOURCEMAP
+        value: "false"
+      - key: DISABLE_ESLINT_PLUGIN
+        value: "true"
