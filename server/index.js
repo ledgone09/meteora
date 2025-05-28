@@ -49,8 +49,44 @@ if (!fs.existsSync(config.upload.tempDir)) {
 // Static files for uploads
 app.use('/uploads', express.static(config.upload.tempDir));
 
-// Serve static HTML file directly
-const staticHtmlPath = path.join(__dirname, '../client/public/index.html');
+// Try multiple possible paths for the HTML file
+const possiblePaths = [
+  path.join(__dirname, '../client/public/index.html'),
+  path.join(__dirname, '../../client/public/index.html'),
+  path.join(process.cwd(), 'client/public/index.html'),
+  path.join(__dirname, '../index.html'),
+  path.join(process.cwd(), 'index.html')
+];
+
+let staticHtmlPath = null;
+
+for (const htmlPath of possiblePaths) {
+  if (fs.existsSync(htmlPath)) {
+    staticHtmlPath = htmlPath;
+    break;
+  }
+}
+
+// If no HTML file found, create a simple one
+if (!staticHtmlPath) {
+  const tempHtmlPath = path.join(__dirname, 'temp-index.html');
+  const htmlContent = `<!DOCTYPE html>
+<html>
+<head><title>Meteora Token Launcher</title></head>
+<body style="font-family: system-ui; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-align: center; padding: 50px;">
+<h1>🚀 Meteora Token Launcher</h1>
+<p>Platform loading...</p>
+<script>
+setTimeout(() => {
+  window.location.reload();
+}, 2000);
+</script>
+</body>
+</html>`;
+  
+  fs.writeFileSync(tempHtmlPath, htmlContent);
+  staticHtmlPath = tempHtmlPath;
+}
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -62,7 +98,9 @@ app.get('/health', (req, res) => {
     pricing: {
       basic: `${config.fees.basicLaunch} SOL`,
       premium: `${config.fees.premiumLaunch} SOL`
-    }
+    },
+    htmlPath: staticHtmlPath,
+    htmlExists: fs.existsSync(staticHtmlPath)
   });
 });
 
@@ -93,7 +131,11 @@ app.get('/api', (req, res) => {
 
 // SERVE THE STATIC HTML FILE FOR ALL OTHER ROUTES
 app.get('*', (req, res) => {
-  res.sendFile(staticHtmlPath);
+  if (fs.existsSync(staticHtmlPath)) {
+    res.sendFile(staticHtmlPath);
+  } else {
+    res.status(404).send('Platform not found');
+  }
 });
 
 // Error handling middleware
@@ -125,6 +167,10 @@ app.use((err, req, res, next) => {
 async function startServer() {
   try {
     console.log('🚀 Starting Meteora Token Launcher Server...');
+    console.log('📁 Current working directory:', process.cwd());
+    console.log('📁 __dirname:', __dirname);
+    console.log('🎯 HTML file path:', staticHtmlPath);
+    console.log('✅ HTML file exists:', fs.existsSync(staticHtmlPath));
     
     // Try to initialize database (optional for development)
     try {
@@ -148,7 +194,6 @@ async function startServer() {
       console.log(`💎 Premium Launch Fee: ${config.fees.premiumLaunch} SOL`);
       console.log(`📡 API Documentation: http://localhost:${config.port}/api`);
       console.log(`🔧 Health Check: http://localhost:${config.port}/health`);
-      console.log(`🎯 Serving static HTML from: ${staticHtmlPath}`);
     });
     
     // Graceful shutdown
