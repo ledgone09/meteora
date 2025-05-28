@@ -7,27 +7,9 @@ services:
     branch: main
     rootDir: .
     buildCommand: |
-      echo "=== Starting build process ==="
+      echo "=== Installing server dependencies ==="
       npm install --production=false
-      echo "=== Root dependencies installed ==="
-      cd client
-      echo "=== Installing client dependencies ==="
-      npm install --production=false
-      echo "=== Building React frontend ==="
-      npm run build
-      echo "=== Build completed, checking output ==="
-      ls -la
-      if [ -d "build" ]; then
-        echo "✅ Build directory created successfully"
-        ls -la build/
-        echo "✅ Build files:"
-        find build -name "*.html" -o -name "*.js" -o -name "*.css" | head -10
-      else
-        echo "❌ Build directory not found!"
-        exit 1
-      fi
-      cd ..
-      echo "=== Build process complete ==="
+      echo "=== Build complete - serving static HTML ==="
     startCommand: npm start
     healthCheckPath: /health
     envVars:

@@ -49,9 +49,8 @@ if (!fs.existsSync(config.upload.tempDir)) {
 // Static files for uploads
 app.use('/uploads', express.static(config.upload.tempDir));
 
-// Serve React build files - ALWAYS SERVE THE REACT APP
-const buildPath = path.join(__dirname, '../client/build');
-app.use(express.static(buildPath));
+// Serve static HTML file directly
+const staticHtmlPath = path.join(__dirname, '../client/public/index.html');
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -92,10 +91,9 @@ app.get('/api', (req, res) => {
   });
 });
 
-// ALWAYS SERVE REACT APP FOR ALL OTHER ROUTES
+// SERVE THE STATIC HTML FILE FOR ALL OTHER ROUTES
 app.get('*', (req, res) => {
-  const indexPath = path.join(buildPath, 'index.html');
-  res.sendFile(indexPath);
+  res.sendFile(staticHtmlPath);
 });
 
 // Error handling middleware
@@ -150,6 +148,7 @@ async function startServer() {
       console.log(`💎 Premium Launch Fee: ${config.fees.premiumLaunch} SOL`);
       console.log(`📡 API Documentation: http://localhost:${config.port}/api`);
       console.log(`🔧 Health Check: http://localhost:${config.port}/health`);
+      console.log(`🎯 Serving static HTML from: ${staticHtmlPath}`);
     });
     
     // Graceful shutdown
