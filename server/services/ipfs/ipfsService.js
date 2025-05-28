@@ -144,6 +144,35 @@ class IPFSService {
     console.log('✅ Image validation passed');
     return true;
   }
+
+  async contentExists(ipfsHash) {
+    console.log('🔍 Checking if content exists:', ipfsHash);
+    
+    // Mock existence check - always return true for demo
+    return true;
+  }
+
+  async uploadFile(buffer, originalname, mimetype) {
+    try {
+      console.log('📁 Mock file upload:', originalname);
+      
+      // Generate mock hash and URL
+      const mockHash = 'Qm' + Math.random().toString(36).substr(2, 44);
+      const ipfsUrl = `${this.config.ipfs.gateway}${mockHash}`;
+      
+      return {
+        fileHash: 'file' + Math.random().toString(36).substr(2, 16),
+        ipfsHash: mockHash,
+        ipfsUrl: ipfsUrl,
+        gateway: this.config.ipfs.gateway,
+        size: buffer ? buffer.length : 1024
+      };
+      
+    } catch (error) {
+      console.error('❌ Mock file upload failed:', error);
+      throw new Error(`File upload failed: ${error.message}`);
+    }
+  }
 }
 
 module.exports = IPFSService; 

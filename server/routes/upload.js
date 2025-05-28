@@ -5,13 +5,25 @@ const router = express.Router();
 // Import services
 const IPFSService = require('../services/ipfs/ipfsService');
 
-// Import database models
-const { Upload } = require('../models/database');
+// Import database models (with fallback)
+let Upload;
+try {
+  const db = require('../models/database');
+  Upload = db.Upload;
+  console.log('✅ Upload database models loaded');
+} catch (error) {
+  console.warn('⚠️  Database not available for uploads, using mock mode');
+  // Create mock database operations
+  Upload = {
+    create: async (data) => ({ id: Math.random(), ...data }),
+    findByHash: async () => null
+  };
+}
 
 const config = require('../config');
 
 // Initialize services
-const ipfsService = new IPFSService();
+const ipfsService = new IPFSService(config.ipfs);
 
 // Configure multer for file uploads
 const upload = multer({

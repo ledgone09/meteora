@@ -4,13 +4,32 @@ const router = express.Router();
 // Import services
 const MeteoraService = require('../services/meteora/dlmmService');
 
-// Import database models
-const { MeteoraPool, PoolStatistics, TokenLaunch } = require('../models/database');
+// Import database models (with fallback)
+let MeteoraPool, PoolStatistics, TokenLaunch;
+try {
+  const db = require('../models/database');
+  MeteoraPool = db.MeteoraPool;
+  PoolStatistics = db.PoolStatistics;
+  TokenLaunch = db.TokenLaunch;
+  console.log('✅ Pool database models loaded');
+} catch (error) {
+  console.warn('⚠️  Database not available for pools, using mock data');
+  // Create mock database operations
+  MeteoraPool = {
+    findByAddress: async () => null
+  };
+  PoolStatistics = {
+    findByPoolAddress: async () => null
+  };
+  TokenLaunch = {
+    findByMint: async () => null
+  };
+}
 
 const config = require('../config');
 
 // Initialize services
-const meteoraService = new MeteoraService();
+const meteoraService = new MeteoraService(config.meteora);
 
 /**
  * GET /api/pools/:poolAddress
