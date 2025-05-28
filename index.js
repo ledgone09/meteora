@@ -26,7 +26,10 @@ app.get('/health', (req, res) => {
         status: 'ok', 
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
-        environment: process.env.NODE_ENV || 'development'
+        environment: process.env.NODE_ENV || 'development',
+        platform_file_exists: fs.existsSync(path.join(__dirname, 'platform.html')),
+        working_directory: process.cwd(),
+        __dirname: __dirname
     });
 });
 
@@ -35,7 +38,7 @@ app.get('/api/status', (req, res) => {
     res.json({
         status: 'online',
         message: 'Meteora Token Launcher API is running',
-        version: '1.0.0',
+        version: '1.0.1',
         endpoints: {
             health: '/health',
             create_token: '/api/tokens/create',
@@ -76,54 +79,162 @@ app.get('/api/launches/recent', (req, res) => {
     });
 });
 
-// Serve the main HTML file
-app.get('/', (req, res) => {
-    const htmlPath = path.join(__dirname, 'platform.html');
-    
-    if (fs.existsSync(htmlPath)) {
-        console.log('Serving main platform HTML from:', htmlPath);
-        res.sendFile(htmlPath);
-    } else {
-        console.log('Main HTML file not found, serving fallback');
-        res.send(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Meteora Token Launcher</title>
-                <style>
-                    body { 
-                        font-family: Arial, sans-serif; 
-                        margin: 0; 
-                        padding: 40px; 
-                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                        color: white;
-                        text-align: center;
-                        min-height: 100vh;
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: center;
-                        align-items: center;
-                    }
-                    .container { max-width: 600px; }
-                    h1 { font-size: 48px; margin-bottom: 20px; }
-                    p { font-size: 18px; margin-bottom: 30px; opacity: 0.9; }
-                    .status { background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <h1>🚀 Meteora Token Launcher</h1>
-                    <p>Platform is starting up...</p>
-                    <div class="status">
-                        <p>Server is running but main platform file not found.</p>
-                        <p>Please check deployment status.</p>
-                    </div>
-                </div>
-            </body>
-            </html>
-        `);
-    }
+// Debug endpoint to check file system
+app.get('/debug', (req, res) => {
+    const files = fs.readdirSync(__dirname);
+    res.json({
+        working_directory: process.cwd(),
+        __dirname: __dirname,
+        files_in_root: files,
+        platform_html_exists: fs.existsSync(path.join(__dirname, 'platform.html')),
+        platform_html_size: fs.existsSync(path.join(__dirname, 'platform.html')) 
+            ? fs.statSync(path.join(__dirname, 'platform.html')).size 
+            : 'N/A'
+    });
 });
+
+// Serve the main HTML file with multiple fallback attempts
+app.get('/', (req, res) => {
+    console.log('=== SERVING ROOT PATH ===');
+    console.log('Working directory:', process.cwd());
+    console.log('__dirname:', __dirname);
+    
+    // Try multiple possible paths
+    const possiblePaths = [
+        path.join(__dirname, 'platform.html'),
+        path.join(process.cwd(), 'platform.html'),
+        path.join(__dirname, 'client', 'public', 'index.html'),
+        path.join(process.cwd(), 'client', 'public', 'index.html')
+    ];
+    
+    let htmlPath = null;
+    let foundPath = null;
+    
+    for (const testPath of possiblePaths) {
+        console.log('Checking path:', testPath);
+        if (fs.existsSync(testPath)) {
+            htmlPath = testPath;
+            foundPath = testPath;
+            console.log('✅ Found platform file at:', testPath);
+            break;
+        } else {
+            console.log('❌ Not found at:', testPath);
+        }
+    }
+    
+    if (htmlPath) {
+        try {
+            const htmlContent = fs.readFileSync(htmlPath, 'utf8');
+            console.log('📄 Successfully read HTML file, size:', htmlContent.length, 'characters');
+            
+            // Verify it's not the loading fallback
+            if (htmlContent.includes('Platform loading...')) {
+                console.log('⚠️ HTML file contains loading message, serving fallback instead');
+                return serveEmbeddedFallback(res);
+            }
+            
+            res.setHeader('Content-Type', 'text/html');
+            res.send(htmlContent);
+            return;
+        } catch (error) {
+            console.error('Error reading HTML file:', error);
+        }
+    }
+    
+    console.log('🔄 No platform file found, serving embedded fallback');
+    serveEmbeddedFallback(res);
+});
+
+function serveEmbeddedFallback(res) {
+    const fallbackHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meteora Token Launcher</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container { 
+            max-width: 800px; 
+            text-align: center; 
+            padding: 40px 20px;
+            background: rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .logo { font-size: 60px; margin-bottom: 20px; }
+        h1 { font-size: 48px; margin-bottom: 20px; }
+        .status { 
+            background: rgba(255,255,255,0.1); 
+            padding: 20px; 
+            border-radius: 10px; 
+            margin: 20px 0;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .btn {
+            background: linear-gradient(45deg, #9333ea, #3b82f6);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 10px;
+            transition: transform 0.2s ease;
+        }
+        .btn:hover { transform: scale(1.05); }
+        .debug { 
+            font-size: 12px; 
+            opacity: 0.7; 
+            margin-top: 20px;
+            text-align: left;
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🚀</div>
+        <h1>Meteora Token Launcher</h1>
+        <p style="font-size: 20px; margin-bottom: 30px;">Platform deployment issue detected</p>
+        
+        <div class="status">
+            <h3>⚠️ Temporary Fallback Mode</h3>
+            <p>The main platform interface is not loading properly.</p>
+            <p>This is likely a deployment configuration issue.</p>
+        </div>
+        
+        <button class="btn" onclick="window.location.reload()">🔄 Retry</button>
+        <button class="btn" onclick="window.location.href='/debug'">🔍 Debug Info</button>
+        <button class="btn" onclick="window.location.href='/health'">📊 Health Check</button>
+        
+        <div class="debug">
+            <strong>Debug Info:</strong><br>
+            Timestamp: ${new Date().toISOString()}<br>
+            Version: 1.0.1<br>
+            Expected: Full Meteora Token Launcher interface<br>
+            Actual: Fallback mode
+        </div>
+    </div>
+</body>
+</html>`;
+
+    res.setHeader('Content-Type', 'text/html');
+    res.send(fallbackHTML);
+}
 
 // Catch all other routes
 app.get('*', (req, res) => {
@@ -144,7 +255,19 @@ app.listen(PORT, () => {
     console.log(`✅ Meteora Token Launcher Server running on port ${PORT}`);
     console.log(`🌐 Server URL: http://localhost:${PORT}`);
     console.log(`📊 Health Check: http://localhost:${PORT}/health`);
+    console.log(`🔍 Debug Info: http://localhost:${PORT}/debug`);
     console.log(`🚀 Platform: http://localhost:${PORT}/`);
+    
+    // Check for platform file on startup
+    const platformPath = path.join(__dirname, 'platform.html');
+    if (fs.existsSync(platformPath)) {
+        console.log('✅ Platform HTML file found at startup');
+        const stats = fs.statSync(platformPath);
+        console.log(`📄 File size: ${stats.size} bytes`);
+    } else {
+        console.log('❌ Platform HTML file NOT found at startup');
+        console.log('📂 Available files:', fs.readdirSync(__dirname));
+    }
 });
 
 module.exports = app; 
