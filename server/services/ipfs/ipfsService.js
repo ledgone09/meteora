@@ -126,6 +126,24 @@ class IPFSService {
       return null;
     }
   }
+
+  validateImage(buffer, mimeType) {
+    console.log('🖼️  Validating image:', mimeType);
+    
+    // Basic validation for mock implementation
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    
+    if (!allowedTypes.includes(mimeType)) {
+      throw new Error('Invalid image type. Allowed: JPG, PNG, GIF, WebP');
+    }
+    
+    if (buffer && buffer.length > 5 * 1024 * 1024) { // 5MB limit
+      throw new Error('Image file too large. Maximum size: 5MB');
+    }
+    
+    console.log('✅ Image validation passed');
+    return true;
+  }
 }
 
 module.exports = IPFSService; 
