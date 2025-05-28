@@ -6,7 +6,7 @@ services:
     repo: https://github.com/ledgone09/meteora.git
     branch: main
     rootDir: .
-    buildCommand: npm install && cd client && npm install && npm run build && cd ..
+    buildCommand: npm install && cd client && npm install && npm run build && cd .. && echo "Build complete"
     startCommand: npm start
     healthCheckPath: /health
     envVars:
