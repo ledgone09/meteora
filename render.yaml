@@ -21,4 +21,4 @@ services:
       - key: BASE_LAUNCH_PRICE
         value: "0.02"
       - key: PREMIUM_LAUNCH_PRICE  
-        value: "0.1" 
+        value: "0.1"
