@@ -16,8 +16,28 @@ code {
 
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html {
   scroll-behavior: smooth;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+@media (max-width: 768px) {
+  div[style*="gridTemplateColumns: '2fr 1fr'"] {
+    grid-template-columns: 1fr !important;
+  }
+  
+  div[style*="fontSize: '60px'"] {
+    font-size: 40px !important;
+  }
+  
+  div[style*="fontSize: '24px'"] {
+    font-size: 18px !important;
+  }
 } 
