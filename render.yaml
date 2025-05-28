@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: meteora-token-launcher
+    env: node
+    plan: starter
+    buildCommand: npm run build:all
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: SOLANA_NETWORK
+        value: devnet
+      - key: SOLANA_RPC_URL
+        value: https://api.devnet.solana.com
+      - key: CORS_ORIGIN
+        value: "*"
+    healthCheckPath: /health 
